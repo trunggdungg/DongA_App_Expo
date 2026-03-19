@@ -1,60 +1,115 @@
-import * as Keychain from 'react-native-keychain';
+import api from './api';
 
-const SERVICE_NAME = 'com.dongademoapp.credentials';
-
-export interface Credentials {
-  username: string;
-  password: string;
+export interface EntityId {
+  entityType: string;
+  id: string;
 }
 
-export const keychainService = {
-  async saveCredentials(username: string, password: string): Promise<boolean> {
-    try {
-      await Keychain.setGenericPassword(username, password, {
-        service: SERVICE_NAME,
-      });
-      return true;
-    } catch (error) {
-      console.error('Error saving credentials to keychain:', error);
-      return false;
+export interface DeviceData {
+  configuration: {
+    type: string;
+  };
+  transportConfiguration: {
+    type: string;
+  };
+}
+
+export interface Device {
+  id: EntityId;
+  createdTime: number;
+  tenantId: EntityId;
+  customerId: EntityId;
+  name: string;
+  type: string;
+  label: string | null;
+  deviceProfileId: EntityId;
+  firmwareId: EntityId | null;
+  softwareId: EntityId | null;
+  attributes: Record<string, unknown> | null;
+  telemetry: unknown | null;
+  externalId: string | null;
+  version: number;
+  deviceData: DeviceData;
+  additionalInfo: Record<string, unknown> | null;
+}
+
+export interface DevicePageData {
+  data: Device[];
+  totalPages: number;
+  totalElements: number;
+  hasNext: boolean;
+}
+
+export interface GetDevicesParams {
+  pageSize?: number;
+  page?: number;
+  sortProperty?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  buildingId?: string;
+}
+
+export const deviceService = {
+  async getDevices(
+    token: string,
+    params: GetDevicesParams = {},
+  ): Promise<{
+    success: boolean;
+    data?: DevicePageData;
+    error?: string;
+  }> {
+    const {
+      pageSize = 100,
+      page = 0,
+      sortProperty,
+      sortOrder,
+      buildingId,
+    } = params;
+
+    const queryParams = new URLSearchParams({
+      pageSize: pageSize.toString(),
+      page: page.toString(),
+    });
+
+    if (sortProperty) {
+      queryParams.append('sortProperty', sortProperty);
     }
+
+    if (sortOrder) {
+      queryParams.append('sortOrder', sortOrder);
+    }
+
+    if (buildingId) {
+      queryParams.append('buildingId', buildingId);
+    }
+
+    const response = await api.get<DevicePageData>(
+      `/api/tenant/devices?${queryParams.toString()}`,
+      token,
+    );
+
+    if (response.error) {
+      return { success: false, error: response.error };
+    }
+
+    return { success: true, data: response.data };
   },
 
-  async getCredentials(): Promise<Credentials | null> {
-    try {
-      const credentials = await Keychain.getGenericPassword({
-        service: SERVICE_NAME,
-      });
+  async getDeviceById(
+    token: string,
+    deviceId: string,
+  ): Promise<{
+    success: boolean;
+    data?: Device;
+    error?: string;
+  }> {
+    const response = await api.get<Device>(`/api/device/${deviceId}`, token);
 
-      if (credentials) {
-        return {
-          username: credentials.username,
-          password: credentials.password,
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error('Error getting credentials from keychain:', error);
-      return null;
+    if (response.error) {
+      return { success: false, error: response.error };
     }
-  },
 
-  async clearCredentials(): Promise<boolean> {
-    try {
-      await Keychain.resetGenericPassword({
-        service: SERVICE_NAME,
-      });
-      return true;
-    } catch (error) {
-      console.error('Error clearing credentials from keychain:', error);
-      return false;
-    }
-  },
-
-  async hasCredentials(): Promise<boolean> {
-    const credentials = await this.getCredentials();
-    return credentials !== null;
+    return { success: true, data: response.data };
   },
 };
 
-export default keychainService;
+export default deviceService;
