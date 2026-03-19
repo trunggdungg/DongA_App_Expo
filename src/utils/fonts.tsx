@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-
+//Named export , khi import sẽ phải đúng tên
 export const Fonts = {
   thin: Platform.select({
     ios: 'Lexend-Thin',
@@ -42,5 +42,8 @@ export const Fonts = {
 export const FontFamily = {
   LEXEND: 'Lexend',
 };
-
-export default Fonts;
+//Default export ,import đặt tên gì cũng được 
+// import Fonts from "./fonts"
+// import F from "./fonts"
+// import abc from "./fonts"
+// export default Fonts;

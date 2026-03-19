@@ -10,10 +10,11 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, TextField } from '../../components';
-import { authService, storageService, keychainService } from '../../services';
-import Colors from '../../helpers/colors';
-import Fonts from '../../helpers/fonts';
+
+import { authService, storageService, keychainService } from '@/services';
+import {Colors, Fonts} from '@/utils'
+import {Button,TextField} from'@/componets'
+
 
 interface LoginScreenProps {
   onLoginSuccess?: () => void;
