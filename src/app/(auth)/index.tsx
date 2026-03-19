@@ -73,9 +73,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         // Save credentials to keychain
         await keychainService.saveCredentials(username.trim(), password);
         
+        console.log('Đăng nhập thành công, token đã lưu');
         onLoginSuccess?.();
       } else {
-        Alert.alert('Lỗi', result.error || 'Đăng nhập thất bại');
+        Alert.alert('Lỗi 1', result.error || 'Đăng nhập thất bại');
       }
     } catch {
       Alert.alert('Lỗi', 'Đã xảy ra lỗi. Vui lòng thử lại.');

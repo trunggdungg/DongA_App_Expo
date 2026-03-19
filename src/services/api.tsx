@@ -1,6 +1,6 @@
 import { authManager } from './authManager';
 
-const BASE_URL = 'https://digital-eaut.xyz';
+const BASE_URL = 'http://14.252.164.238:8080';
 
 interface ApiResponse<T> {
   data?: T;
